@@ -1,0 +1,58 @@
+<HTML>
+<body>
+    <h1>Alphable</h1>
+    <p id='load'>Loading...</p>
+    <p id='guess' style="display:none">Guess a word...</p>
+    <form id="userInput" style="display:none" onsubmit="return false">
+        <input type="text" id="word" name="word">
+        <button id="submit" type="button">Submit</button>
+    </form>
+    <p id="return"></p>
+<script>
+var guess_count = 0;
+//get word list from endpoint
+fetch('https://gist.githubusercontent.com/jesseditson/1e6b2b524814320515ccfe7e2f856eda/raw/17d61fa1e80e14b13c4525b09f84148772586b59/words.json')
+  .then(response => response.json())
+  .then(data => build(data.words));
+
+  function build(words) {
+    //select word randomly
+    var word = words[Math.floor(Math.random()*words.length)];
+    console.log(word);
+    var word_index = words.indexOf(word);
+    //clear loading message
+    document.getElementById('load').innerHTML = "";
+    //show prompt and input fields
+    document.getElementById('guess').style = '';
+    var userInput = document.getElementById('userInput');
+    userInput.style = '';
+    //get submit button, add parameters and event listener
+    var submit = document.getElementById('submit');
+    submit.word = word;
+    submit.word_index = word_index;
+    submit.dict = words;
+    submit.addEventListener("click", check);
+  }
+
+  function check(e) {
+    //clear any previous messages
+    document.getElementById('return').innerHTML='';
+    //get guessed word
+    var guessElement = document.getElementById('word');
+    var guess = guessElement.value;
+    var guess_index = e.currentTarget.dict.indexOf(guess);
+    if (guess_index == e.currentTarget.word_index) {
+        document.getElementById('return').innerHTML = "Correct! The word was " + e.currentTarget.word;
+        document.getElementById('submit').remove();
+    } else if (guess_index == -1) {
+        document.getElementById('return').innerHTML = "Word not recognised";
+    } else {
+        guess_count += 1;
+        distance = Math.abs(e.currentTarget.word_index - guess_index);
+        document.getElementById('return').innerHTML = "The word '" + guess + "' is " + distance + " words away!";
+        guessElement.value = '';
+    }
+  }
+</script>
+</body>
+</HTML>
