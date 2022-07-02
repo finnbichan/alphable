@@ -1,58 +1,145 @@
 <HTML>
-<body>
-    <h1>Alphable</h1>
-    <p id='load'>Loading...</p>
-    <p id='guess' style="display:none">Guess a word...</p>
-    <form id="userInput" style="display:none" onsubmit="return false">
-        <input type="text" id="word" name="word">
-        <button id="submit" type="button">Submit</button>
-    </form>
-    <p id="return"></p>
-<script>
-var guess_count = 0;
-//get word list from endpoint
-fetch('https://gist.githubusercontent.com/jesseditson/1e6b2b524814320515ccfe7e2f856eda/raw/17d61fa1e80e14b13c4525b09f84148772586b59/words.json')
-  .then(response => response.json())
-  .then(data => build(data.words));
-
-  function build(words) {
-    //select word randomly
-    var word = words[Math.floor(Math.random()*words.length)];
-    console.log(word);
-    var word_index = words.indexOf(word);
-    //clear loading message
-    document.getElementById('load').innerHTML = "";
-    //show prompt and input fields
-    document.getElementById('guess').style = '';
-    var userInput = document.getElementById('userInput');
-    userInput.style = '';
-    //get submit button, add parameters and event listener
-    var submit = document.getElementById('submit');
-    submit.word = word;
-    submit.word_index = word_index;
-    submit.dict = words;
-    submit.addEventListener("click", check);
-  }
-
-  function check(e) {
-    //clear any previous messages
-    document.getElementById('return').innerHTML='';
-    //get guessed word
-    var guessElement = document.getElementById('word');
-    var guess = guessElement.value;
-    var guess_index = e.currentTarget.dict.indexOf(guess);
-    if (guess_index == e.currentTarget.word_index) {
-        document.getElementById('return').innerHTML = "Correct! The word was " + e.currentTarget.word;
-        document.getElementById('submit').remove();
-    } else if (guess_index == -1) {
-        document.getElementById('return').innerHTML = "Word not recognised";
-    } else {
-        guess_count += 1;
-        distance = Math.abs(e.currentTarget.word_index - guess_index);
-        document.getElementById('return').innerHTML = "The word '" + guess + "' is " + distance + " words away!";
-        guessElement.value = '';
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: blanchedalmond;
+      text-align: center;
     }
-  }
-</script>
-</body>
+    h1 {
+      font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+      border: none;
+      font-size: 6vw;
+      padding: 32px 32px;
+      padding-bottom: 0px;
+      text-decoration: none;
+      margin: 4px 2px;
+    }
+    p {
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    #guess {
+        border: none;
+        padding: 16px 32px;
+        text-decoration: none;
+        margin: 4px 2px;
+    }
+    #return {
+        border: none;
+        padding: 16px 32px;
+        text-decoration: none;
+        margin: 4px 2px;
+    }
+    input[type=text] {
+        background-color: #ffffff;
+        border: none;
+        padding: 16px 32px;
+        text-decoration: none;
+        margin: 4px 2px;
+        cursor: text;
+        border-radius:5px;
+        -moz-border-radius:5px;
+        -webkit-border-radius:5px;
+      }
+      button {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 16px 32px;
+        text-align: center;
+        text-decoration: none;
+        margin: 4px 2px;
+        display: inline-block;
+        font-size: 16px;
+        border-radius:5px;
+        -moz-border-radius:5px;
+        -webkit-border-radius:5px;
+        cursor: pointer;
+      }
+      @media screen and (min-width: 601px) {
+        h1 {
+          font-size: 80px;
+        }
+        #guess {
+          font-size: 40px;
+        }
+        #return {
+          font-size: 30px;
+        }
+      }
+      @media screen and (max-width: 600px) {
+        h1 {
+          font-size: 60px;
+        }
+        #guess {
+          font-size: 30px;
+        }
+        #return {
+          font-size: 20px;
+        }
+      }
+  </style>
+  <body>
+      <h1>Alphable</h1>
+      <p id='load'>Loading...</p>
+      <p id='guess' style="display:none">Guess a word...</p>
+      <form id="userInput" style="display:none" onsubmit="return false">
+          <input type="text" id="word" name="word">
+          <button id="submit" type="button">Submit</button>
+      </form>
+      <p id="return"></p>
+  <script>
+  var guess_count = 0;
+  //get word list from endpoint
+  fetch('https://gist.githubusercontent.com/jesseditson/1e6b2b524814320515ccfe7e2f856eda/raw/17d61fa1e80e14b13c4525b09f84148772586b59/words.json')
+    .then(response => response.json())
+    .then(data => build(data.words));
+
+    function build(words) {
+      //select word randomly
+      var word = words[Math.floor(Math.random()*words.length)];
+      var word_index = words.indexOf(word);
+      //clear loading message
+      document.getElementById('load').innerHTML = "";
+      //show prompt and input fields
+      document.getElementById('guess').style = '';
+      var userInput = document.getElementById('userInput');
+      userInput.style = '';
+      //get submit button, add parameters and event listener
+      var submit = document.getElementById('submit');
+      submit.word = word;
+      submit.word_index = word_index;
+      submit.dict = words;
+      submit.addEventListener("click", check);
+    }
+
+    function check(e) {
+      //clear any previous messages
+      var messageElement = document.getElementById('return');
+      messageElement.innerHTML='';
+      //get guessed word
+      var guessElement = document.getElementById('word');
+      var guess = guessElement.value;
+      if (guess == "") {
+        messageElement.innerHTML = "Try guessing a word first...";
+        messageElement.style.color = "black";
+      } else {
+        var guess_index = e.currentTarget.dict.indexOf(guess);
+        if (guess_index == e.currentTarget.word_index) {
+            messageElement.innerHTML = "Correct! The word was " + e.currentTarget.word;
+            messageElement.style.color = "green";
+            document.getElementById('submit').remove();
+        } else if (guess_index == -1) {
+            messageElement.innerHTML = "Word not recognised";
+            messageElement.style.color = "red";
+        } else {
+            guess_count += 1;
+            distance = Math.abs(e.currentTarget.word_index - guess_index);
+            messageElement.innerHTML = "The word '" + guess + "' is " + distance + " words away!";
+            messageElement.style.color = "orange";
+            guessElement.value = '';
+        }
+      }
+    }
+  </script>
+  </body>
 </HTML>
